@@ -147,7 +147,6 @@ Cylinder::ParamsFromCloud(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr in_cloud ,
   // Give as input the filtered point cloud
   seg.setInputCloud (trans_cloud);
   // Call the segmenting method
-  std::cout<<"debug 1\n";
   seg.segment(inliers,coeff);
 
 
@@ -333,11 +332,12 @@ void Cylinder::makeCyl3D()
 
       float alpha;
       Eigen::Vector3f point_temp;
-      alpha = poly_plane.contours[j][k][0]/ r_ ;
-      //         use polar coordinates to create cylinder points
-      point_temp <<  r_ * sin(-alpha), poly_plane.contours[j][k][1],  r_*  cos(-alpha);
+      getPt3D(poly_plane.contours[j][k],point_temp);
+     // alpha = poly_plane.contours[j][k][0]/ r_ ;
+     // //         use polar coordinates to create cylinder points
+     // point_temp <<  r_ * sin(-alpha), poly_plane.contours[j][k][1],  r_*  cos(-alpha);
 
-      //        transform back in world system
+     // //        transform back in world system
       point_temp = transform_from_world_to_plane.inverse() * point_temp;
       contours[j][k] = point_temp;
       //      contours3D[j][k] = contours[j][k];
@@ -345,11 +345,24 @@ void Cylinder::makeCyl3D()
   }
 }
 
+/**
+* \brief Transform Point from 2D to 3D
+*
+* Transformation of Point, that is part of cylinder
+* from flat/2D shape to 3D shape.
+*/
+void Cylinder::getPt3D(Eigen::Vector3f& pt2d,Eigen::Vector3f& pt3d){
+
+      double alpha = pt2d[0]/ r_ ;
+      //         use polar coordinates to create cylinder points
+       pt3d<<  r_ * sin(-alpha), pt2d[1],  r_*  cos(-alpha);
+
+}
 
 /**
 * \brief Transform 3d cylinder to 2d shape.
 *
-* Projection of cylinder onto play , by means of arclength.
+* Projection of cylinder onto plane , by means of arclength.
 */
 void Cylinder::makeCyl2D()
 {
